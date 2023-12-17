@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { useEffect, useState } from 'react'
 import generatePayload from 'promptpay-qr'
-import { Avatar, Button, Checkbox, Input, } from '@nextui-org/react'
+import { Avatar, Button, Checkbox, Input } from '@nextui-org/react'
 import QRCode from "react-qr-code";
 import './App.css'
 import { toJpeg } from 'html-to-image'
@@ -26,6 +26,7 @@ const dataURLtoFile = (dataurl: any, filename: any) => {
 function App() {
   const [phonenumber, setPhoneNumber] = useState<string | undefined>()
   const [amount, setAmount] = useState(0)
+  const [peopleAmount, setPeopleAmount] = useState(1)
   const [qrValue, setQrValue] = useState('')
   const [isSavePhoneNumber, setIsSavePhoneNumber] = useState(false)
 
@@ -47,9 +48,11 @@ function App() {
           text
         })
         .then(() => console.log("Share was successful."))
-        .catch((error) => console.log("Sharing failed", error));
+        .catch((error) => {
+          window.alert(`Sharing failed ${JSON.stringify(error)}`)
+        });
     } else {
-      console.log(`Your system doesn't support sharing files.`);
+      window.alert("Your system doesn't support sharing files.");
     }
   };
 
@@ -58,7 +61,7 @@ function App() {
     toJpeg(document.getElementById("qrcode"), { quality: 1, backgroundColor: 'white', height: 300 }).then(
       (dataUrl) => {
         const file = dataURLtoFile(dataUrl, "qrcode-promptpay.png");
-        shareFile(file, "Title", "http://qr-chayen.web.app/");
+        shareFile(file, "QR Chayen", "http://qr-chayen.web.app/");
       }
     );
   };
@@ -71,7 +74,14 @@ function App() {
           <Input value={phonenumber} label="Phone Number" onChange={({ target: { value } }) => {
             setPhoneNumber(value)
           }} />
-          <Input type="number" value={amount.toString()} label="Amount (ใส่หรือไม่ใส่ก็ได้)" onChange={({ target: { value } }) => setAmount(+value)} />
+          <div className="flex w-full md:flex-nowrap gap-4">
+            <div style={{ flex: 2 }}>
+              <Input type="number" value={amount.toString()} label="Amount (ใส่หรือไม่ใส่ก็ได้)" onChange={({ target: { value } }) => setAmount(+value)} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <Input type="number" value={peopleAmount.toString()} label="กี่คน" onChange={({ target: { value } }) => setPeopleAmount(+value)} />
+            </div>
+          </div>
           {qrValue &&
             <div id="qrcode" style={{ padding: '1rem' }}>
               <QRCode value={qrValue} style={{ width: '100%' }} />
@@ -81,7 +91,7 @@ function App() {
             color="primary"
             onClick={() => {
               if (phonenumber) {
-                const payload = generatePayload(phonenumber, { amount: amount })
+                const payload = generatePayload(phonenumber, { amount: amount * peopleAmount })
                 if (isSavePhoneNumber) {
                   localStorage.setItem("phone", phonenumber)
 
