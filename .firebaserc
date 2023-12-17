@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "chayen"
+  },
+  "targets": {
+    "chayen": {
+      "hosting": {
+        "qr-chayen": [
+          "qr-chayen"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}
